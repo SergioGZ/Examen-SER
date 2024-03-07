@@ -1,0 +1,10 @@
+<div class="row bg-dark" style="height:95px;">
+    <div class="col-6">
+        <h2 class="text-light m-4 pt-1 float-start">Bienvenido, <?php echo $_SESSION['nick']; ?>!</h2>
+        <img class="img-fluid pt-3 float-start position-absolute" src="images/monitor.png" style="width: 50px;" />
+    </div>
+    <div class="col-6">
+        <a class="float-end m-4 pt-1 btn btn-secondary" href="index.php?accion=logout"><i class="bi bi-door-open-fill"></i> Cerrar sesión</a>
+        <a class="btn btn-secondary float-end m-4 pt-1" href="index.php?accion=<?php if ($_SESSION['rol'] == 'admin') echo 'listadoEntradasAdmin'; else echo 'listadoEntradasUsuario&id=' . $_SESSION['iduser']; ?>">Inicio</a>
+    </div>
+</div>
