@@ -76,9 +76,7 @@ class controlador {
 
         // Realizamos la consulta y almacenamos los resultados en la variable $resultModelo
         if (isset($_SESSION['user']) && $_SESSION['rol'] == "admin") {
-            $resultModelo = $this->modelo->listadoEntradasAdmin();
-        } elseif (isset($_SESSION['user']) && $_SESSION['rol'] == "user") {
-            $resultModelo = $this->modelo->listadoEntradasUsuario($_SESSION['iduser']);
+            $resultModelo = $this->modelo->listadoTareas();
         }
 
         if ($resultModelo["correcto"]) {
@@ -97,14 +95,12 @@ class controlador {
         $parametros['mensajes'] = $this->mensajes;
 
         // Incluimos la vista en la que visualizaremos los datos o un mensaje de error
-        if (isset($_SESSION['user']) && $_SESSION['rol'] == "admin") {
+        if (isset($_SESSION['user'])) {
             include_once './vistas/listado.php';
-        } elseif (isset($_SESSION['user']) && $_SESSION['rol'] == "user") {
-            include_once './vistas/listadoUsuario.php';
         }
     }
 
-    public function listadoEntradasAdmin() {
+    public function listadoTareas() {
     if (!isset($_SESSION)) {
       session_start();
     }
@@ -114,7 +110,7 @@ class controlador {
           "mensajes" => []
       ];
 
-      $resultModelo = $this->modelo->listadoEntradasAdmin();
+      $resultModelo = $this->modelo->listadoTareas();
 
       if ($resultModelo["correcto"]) :
         $parametros["datos"] = $resultModelo["datos"];
@@ -133,38 +129,7 @@ class controlador {
       include_once 'vistas/listado.php';
     }
 
-    public function listadoEntradasUsuario() {
-      if (!isset($_SESSION)) {
-        session_start();
-      }
-
-      $parametros = [
-          "tituloventana" => "Base de Datos con PHP y PDO",
-          "datos" => NULL,
-          "mensajes" => []
-      ];
-
-      $id = $_GET['id'];
-      $resultModelo = $this->modelo->listadoEntradasUsuario($id);
-
-      if ($resultModelo["correcto"]) :
-        $parametros["datos"] = $resultModelo["datos"];
-        $this->mensajes[] = [
-            "tipo" => "success",
-            "mensaje" => "El listado se realizó correctamente"
-        ];
-      else :
-        $this->mensajes[] = [
-            "tipo" => "danger",
-            "mensaje" => "El listado no pudo realizarse correctamente<br/>({$resultModelo["error"]})"
-        ];
-      endif;
-
-      $parametros["mensajes"] = $this->mensajes;
-      include_once 'vistas/listadoUsuario.php';
-    }
-
-    public function addentrada() {
+    public function addtarea() {
       if (!isset($_SESSION)) {
         session_start();
       }
@@ -173,11 +138,13 @@ class controlador {
       $errores = array();
         // Si se ha pulsado el botón guardar...
       if (isset($_POST) && !empty($_POST) && isset($_POST['submit'])) {
-        $usuario_id = $_POST['id'];
         $categoria_id = $_POST['categoria_id'];
         $titulo = $_POST['titulo'];
         $descripcion = $_POST['descripcion'];
         $fecha = $_POST['fecha'];
+        $hora = $_POST['hora'];
+        $lugar = $_POST['lugar'];
+        $prioridad = $_POST['prioridad'];
 
         $imagen = NULL;
 
@@ -211,34 +178,31 @@ class controlador {
         }
         // Si no se han producido errores realizamos el registro del usuario
         if (count($errores) == 0) {
-          $resultModelo = $this->modelo->addentrada([
-              'usuario_id' => $usuario_id,
+          $resultModelo = $this->modelo->addtarea([
               'categoria_id' => $categoria_id,
               'titulo' => $titulo,
               'descripcion' => $descripcion,
               'fecha' => $fecha,
-              'imagen' => $imagen
+              'imagen' => $imagen,
+              'hora' => $hora,
+              'lugar' => $lugar,
+              'prioridad' => $prioridad
           ]);
           if ($resultModelo["correcto"]) :
             $this->mensajes[] = [
                 "tipo" => "success",
-                "mensaje" => "La entrada se registró correctamente"
+                "mensaje" => "La tarea se registró correctamente"
             ];
-
-            $logs["usuario_id"] = $_SESSION['iduser'];
-            $logs["accion"] = "Se añadió una nueva entrada con el título $titulo";
-            $logs["fecha"] = date("Y-m-d H:i:s");
-            $this->insertarlog($logs);
           else :
             $this->mensajes[] = [
                 "tipo" => "danger",
-                "mensaje" => "La entrada no pudo registrarse<br/>({$resultModelo["error"]})"
+                "mensaje" => "La tarea no pudo registrarse<br/>({$resultModelo["error"]})"
             ];
           endif;
         } else {
           $this->mensajes[] = [
               "tipo" => "danger",
-              "mensaje" => "Datos de registro de entrada erróneos"
+              "mensaje" => "Datos de registro de tarea erróneos"
           ];
         }
       }
@@ -250,7 +214,10 @@ class controlador {
               "titulo" => isset($titulo) ? $titulo : "",
               "descripcion" => isset($descripcion) ? $descripcion : "",
               "fecha" => isset($fecha) ? $fecha : "",
-              "imagen" => isset($imagen) ? $imagen : ""
+              "imagen" => isset($imagen) ? $imagen : "",
+              "hora" => isset($hora) ? $hora : "",
+              "lugar" => isset($lugar) ? $lugar : "",
+              "prioridad" => isset($prioridad) ? $prioridad : ""
           ],
           "mensajes" => $this->mensajes
       ];
@@ -258,10 +225,10 @@ class controlador {
       $categorias = $this->modelo->listadocategorias();
 
       // Visualizamos la vista asociada al registro de usuarios
-      include_once 'vistas/addentrada.php';
+      include_once 'vistas/addtarea.php';
     }
     
-        public function actentrada() {
+        public function acttarea() {
           if (!isset($_SESSION)) {
             session_start();
           }
@@ -274,6 +241,9 @@ class controlador {
           $valfecha = "";
           $valcategoria_id = "";
           $valimagen = "";
+          $valhora = "";
+          $vallugar = "";
+          $valprioridad = "";
       
           // Si se ha pulsado el botón actualizar
           if (isset($_POST['submit'])) {
@@ -283,6 +253,9 @@ class controlador {
             $nuevafecha = $_POST['fecha'];
             $nuevacategoria_id = $_POST['categoria_id'];
             $nuevaimagen = "";
+            $nuevahora = $_POST['hora'];
+            $nuevalugar = $_POST['lugar'];
+            $nuevaprioridad = $_POST['prioridad'];
       
             // Definimos la variable $imagen que almacenará el nombre de imagen 
             $imagen = NULL;
@@ -317,29 +290,27 @@ class controlador {
       
             if (count($errores) == 0) {
               
-              $resultModelo = $this->modelo->actentrada([
+              $resultModelo = $this->modelo->acttarea([
                   'id' => $id,
                   'titulo' => $nuevotitulo,
                   'descripcion' => $nuevadescripcion,
                   'fecha' => $nuevafecha,
                   'categoria_id' => $nuevacategoria_id,
-                  'imagen' => $nuevaimagen
+                  'imagen' => $nuevaimagen,
+                  'hora' => $nuevahora,
+                  'lugar' => $nuevalugar,
+                  'prioridad' => $nuevaprioridad
               ]);
 
               if ($resultModelo["correcto"]) :
                 $this->mensajes[] = [
                     "tipo" => "success",
-                    "mensaje" => "La entrada se actualizó correctamente!! :)"
+                    "mensaje" => "La tarea se actualizó correctamente!! :)"
                 ];
-
-                $logs["usuario_id"] = $_SESSION['iduser'];
-                $logs["accion"] = "Se actualizó la entrada $id";
-                $logs["fecha"] = date("Y-m-d H:i:s");
-                $this->insertarlog($logs);
               else :
                 $this->mensajes[] = [
                     "tipo" => "danger",
-                    "mensaje" => "La entrada no pudo actualizarse!! :( <br/>({$resultModelo["error"]})"
+                    "mensaje" => "La tarea no pudo actualizarse!! :( <br/>({$resultModelo["error"]})"
                 ];
               endif;
             } else {
@@ -355,25 +326,31 @@ class controlador {
             $valfecha = $nuevafecha;
             $valcategoria_id = $nuevacategoria_id;
             $valimagen = $nuevaimagen;
+            $valhora = $nuevahora;
+            $vallugar = $nuevalugar;
+            $valprioridad = $nuevaprioridad;
           } else { // Obtenemos los valores del usuario a través de su id
             if (isset($_GET['id']) && (is_numeric($_GET['id']))) {
               $id = $_GET['id'];
               //Ejecutamos la consulta para obtener los datos del usuario #id
-              $resultModelo = $this->modelo->listarentrada($id);
+              $resultModelo = $this->modelo->listartarea($id);
               if ($resultModelo["correcto"]) :
                 $this->mensajes[] = [
                     "tipo" => "success",
-                    "mensaje" => "Los datos de la entrada se obtuvieron correctamente"
+                    "mensaje" => "Los datos de la tarea se obtuvieron correctamente"
                 ];
                 $valtitulo = $resultModelo["datos"]["titulo"];
                 $valdescripcion  = $resultModelo["datos"]["descripcion"];
                 $valfecha = $resultModelo["datos"]["fecha"];
                 $valcategoria_id = $resultModelo["datos"]["categoria_id"];
                 $valimagen = $resultModelo["datos"]["imagen"];
+                $valhora = $resultModelo["datos"]["hora"];
+                $vallugar = $resultModelo["datos"]["lugar"];
+                $valprioridad = $resultModelo["datos"]["prioridad"];
               else :
                 $this->mensajes[] = [
                     "tipo" => "danger",
-                    "mensaje" => "No se pudieron obtener los datos de entrada<br/>({$resultModelo["error"]})"
+                    "mensaje" => "No se pudieron obtener los datos de tarea<br/>({$resultModelo["error"]})"
                 ];
               endif;
             }
@@ -385,18 +362,21 @@ class controlador {
                   "descripcion"  => $valdescripcion,
                   "fecha" => $valfecha,
                   "categoria_id" => $valcategoria_id,
-                  "imagen"    => $valimagen
+                  "imagen"    => $valimagen,
+                  "hora" => $valhora,
+                  "lugar" => $vallugar,
+                  "prioridad" => $valprioridad
               ],
               "mensajes" => $this->mensajes
           ];
 
           $categorias = $this->modelo->listadocategorias();
-          //Mostramos la vista actuser
-          include_once 'vistas/actentrada.php';
+          // Mostramos la vista acttarea
+          include_once 'vistas/acttarea.php';
         }
 
   // Método que elimina un usuario de la base de datos
-  public function delentrada() {
+  public function deltarea() {
 
     // Verificamos que hemos recibido los parámetros desde la vista de listado 
     if (isset($_GET['id']) && (is_numeric($_GET['id']))) {
@@ -407,15 +387,15 @@ class controlador {
       }
 
       // Realizamos la operación de suprimir el usuario con el id=$id
-      $this->modelo->delentrada($id);
+      $this->modelo->deltarea($id);
 
       $logs["usuario_id"] = $_SESSION['iduser'];
-      $logs["accion"] = "Se eliminó la entrada $id";
+      $logs["accion"] = "Se eliminó la tarea $id";
       $logs["fecha"] = date("Y-m-d H:i:s");
       $this->insertarlog($logs);
 
       // Redirigimos a la página de listado de usuarios
-      header("Location: index.php?accion=listadoEntradasAdmin");
+      header("Location: index.php?accion=listadoTareas");
     }
       
   }
@@ -452,7 +432,7 @@ class controlador {
     ];
 
     $id = $_GET['id'];
-    $resultModelo = $this->modelo->listarentrada($id);
+    $resultModelo = $this->modelo->listartarea($id);
 
     if ($resultModelo["correcto"]) :
       $parametros["datos"] = $resultModelo["datos"];

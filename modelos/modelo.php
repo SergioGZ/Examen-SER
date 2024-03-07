@@ -75,7 +75,7 @@ class modelo {
     }
 
     // Método que lista todas las entradas de la base de datos
-    public function listadoEntradasAdmin() {
+    public function listadoTareas() {
       $resultmodelo = [
           "correcto" => FALSE,
           "datos" => NULL,
@@ -83,7 +83,7 @@ class modelo {
       ];
 
       try { 
-        $sql = "SELECT usuarios.nick, entradas.*, categorias.* FROM entradas INNER JOIN usuarios ON entradas.usuario_id = usuarios.id INNER JOIN categorias ON entradas.categoria_id = categorias.id";
+        $sql = "SELECT tareas.*, categorias.* FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id";
         $resultsquery = $this->conexion->query($sql);
         if ($resultsquery) :
           $resultmodelo["correcto"] = TRUE;
@@ -96,31 +96,8 @@ class modelo {
       return $resultmodelo;
     }
 
-    // Método que lista las entradas de un usuario de la base de datos
-    public function listadoEntradasUsuario($id) {
-      $return = [
-          "correcto" => FALSE,
-          "datos" => NULL,
-          "error" => NULL
-      ];
-
-      try { 
-        $sql = "SELECT usuarios.nick, entradas.*, categorias.* FROM entradas INNER JOIN usuarios ON entradas.usuario_id = usuarios.id INNER JOIN categorias ON entradas.categoria_id = categorias.id WHERE usuario_id = $id";
-        $resultsquery = $this->conexion->query($sql);
-
-        if ($resultsquery) :
-          $return["correcto"] = TRUE;
-          $return["datos"] = $resultsquery->fetchAll(PDO::FETCH_ASSOC);
-        endif;
-      } catch (PDOException $ex) {
-        $return["error"] = $ex->getMessage();
-      }
-
-      return $return;
-    }
-
     // Método que añade una entrada a la base de datos
-    public function addentrada($datos) {
+    public function addtarea($datos) {
       $return = [
           "correcto" => FALSE,
           "error" => NULL
@@ -128,16 +105,18 @@ class modelo {
   
       try {
         $this->conexion->beginTransaction();
-        $sql = "INSERT INTO entradas(usuario_id,categoria_id,titulo,imagen,descripcion,fecha)
-                           VALUES (:usuario_id,:categoria_id,:titulo,:imagen,:descripcion,:fecha)";
+        $sql = "INSERT INTO tareas(categoria_id,titulo,imagen,descripcion,fecha,hora,prioridad,lugar)
+                           VALUES (:categoria_id,:titulo,:imagen,:descripcion,:fecha,:hora,:prioridad,:lugar)";
         $query = $this->conexion->prepare($sql);
         $query->execute([
-            'usuario_id' => $datos["usuario_id"],
             'categoria_id' => $datos["categoria_id"],
             'titulo' => $datos["titulo"],
             'imagen' => $datos["imagen"],
             'descripcion' => $datos["descripcion"],
-            'fecha' => $datos["fecha"]
+            'fecha' => $datos["fecha"],
+            'hora' => $datos["hora"],
+            'prioridad' => $datos["prioridad"],
+            'lugar' => $datos["lugar"]
         ]);
         if ($query) {
           $this->conexion->commit();
@@ -153,7 +132,7 @@ class modelo {
     }
 
     // Método que lista una entrada de la base de datos
-    public function listarentrada($id) {
+    public function listartarea($id) {
       $return = [
           "correcto" => FALSE,
           "datos" => NULL,
@@ -162,7 +141,7 @@ class modelo {
   
       if ($id && is_numeric($id)) {
         try {
-          $sql = "SELECT usuarios.nick, entradas.*, categorias.nombre AS nombreCategoria FROM entradas INNER JOIN usuarios ON entradas.usuario_id = usuarios.id INNER JOIN categorias ON entradas.categoria_id = categorias.id WHERE entradas.id=:id";
+          $sql = "SELECT tareas.*, categorias.nombre AS nombreCategoria FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE tareas.id=:id";
           $query = $this->conexion->prepare($sql);
           $query->execute(['id' => $id]);
           // Supervisamos que la consulta se realizó correctamente
@@ -180,7 +159,7 @@ class modelo {
     }
 
     // Método que actualiza una entrada de la base de datos
-    public function actentrada($datos) {
+    public function acttarea($datos) {
       $return = [
           "correcto" => FALSE,
           "error" => NULL
@@ -188,7 +167,7 @@ class modelo {
   
       try {
         $this->conexion->beginTransaction();
-        $sql = "UPDATE entradas SET titulo= :titulo, descripcion= :descripcion, categoria_id= :categoria_id, fecha= :fecha, imagen= :imagen WHERE id=:id";
+        $sql = "UPDATE tareas SET titulo= :titulo, descripcion= :descripcion, categoria_id= :categoria_id, fecha= :fecha, imagen= :imagen, hora= :hora, prioridad= :prioridad, lugar= :lugar WHERE id=:id ORDER BY hora ASC";
         $query = $this->conexion->prepare($sql);
         $query->execute([
             'id' => $datos["id"],
@@ -196,7 +175,10 @@ class modelo {
             'descripcion' => $datos["descripcion"],
             'categoria_id' => $datos["categoria_id"],
             'fecha' => $datos["fecha"],
-            'imagen' => $datos["imagen"]
+            'imagen' => $datos["imagen"],
+            'hora' => $datos["hora"],
+            'prioridad' => $datos["prioridad"],
+            'lugar' => $datos["lugar"]
         ]);
 
         if ($query) {
@@ -213,7 +195,7 @@ class modelo {
     }
 
   // Método que elimina una entrada de la base de datos
-  public function delentrada($id) {
+  public function deltarea($id) {
     $return = [
         "correcto" => FALSE,
         "error" => NULL
@@ -223,7 +205,7 @@ class modelo {
         //Inicializamos la transacción
         $this->conexion->beginTransaction();
         //Definimos la instrucción SQL parametrizada 
-        $sql = "DELETE FROM entradas WHERE id=:id";
+        $sql = "DELETE FROM tareas WHERE id=:id";
         $query = $this->conexion->prepare($sql);
         $query->execute(['id' => $id]);
   
@@ -237,33 +219,6 @@ class modelo {
       }
     } else {
       $return["correcto"] = FALSE;
-    }
-
-    return $return;
-  }
-
-  // Método que lista un usuario de la base de datos
-  public function listausuario($id) {
-    $return = [
-        "correcto" => FALSE,
-        "datos" => NULL,
-        "error" => NULL
-    ];
-
-    if ($id && is_numeric($id)) {
-      try {
-        $sql = "SELECT * FROM usuarios WHERE id=:id";
-        $query = $this->conexion->prepare($sql);
-        $query->execute(['id' => $id]);
-        //Supervisamos que la consulta se realizó correctamente... 
-        if ($query) {
-          $return["correcto"] = TRUE;
-          $return["datos"] = $query->fetch(PDO::FETCH_ASSOC);
-        }// o no :(
-      } catch (PDOException $ex) {
-        $return["error"] = $ex->getMessage();
-        //die();
-      }
     }
 
     return $return;
@@ -288,36 +243,6 @@ class modelo {
       }// o no :(
     } catch (PDOException $ex) {
       $return["error"] = $ex->getMessage();
-    }
-
-    return $return;
-  }
-
-  public function insertarlog($datos) {
-    $return = [
-        "correcto" => FALSE,
-        "error" => NULL
-    ];
-
-    try {
-      $this->conexion->beginTransaction();
-      $sql = "INSERT INTO logs(usuario_id,fecha,accion)
-                         VALUES (:usuario_id,:fecha,:accion)";
-      $query = $this->conexion->prepare($sql);
-      echo "<script>console.log('Entrada añadida correctamente');</script>";
-      $query->execute([
-          'usuario_id' => $datos["usuario_id"],
-          'fecha' => $datos["fecha"],
-          'accion' => $datos["accion"]
-      ]);
-      if ($query) {
-        $this->conexion->commit();
-        $return["correcto"] = TRUE;
-      }// o no :(
-    } catch (PDOException $ex) {
-      $this->conexion->rollback(); // rollback() se revierten los cambios realizados durante la transacción
-      $return["error"] = $ex->getMessage();
-      //die();
     }
 
     return $return;

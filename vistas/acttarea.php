@@ -1,5 +1,5 @@
 <?php
-//var_dump($_SESSION['iduser']); ?>
+//var_dump($parametros['datos']); ?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -17,7 +17,7 @@
             foreach ($parametros["mensajes"] as $mensaje) : ?> 
              <div class="alert alert-<?= $mensaje["tipo"] ?>"><?= $mensaje["mensaje"] ?></div>
       <?php endforeach; ?>
-      <form action="index.php?accion=actentrada" method="post" enctype="multipart/form-data" class="mb-3">
+      <form action="index.php?accion=acttarea" method="post" enctype="multipart/form-data" class="mb-3">
 
         <label for="titulo">Titulo
           <input type="text" class="form-control" name="titulo" value="<?= $parametros["datos"]["titulo"] ?>" required></label>
@@ -31,6 +31,10 @@
         <label for="fecha">Fecha
           <input type="date" class="form-control" name="fecha" value="<?= $parametros["datos"]["fecha"] ?>"></label>
         <br/>
+
+        <label for="hora" class="mt-2 w-25">Hora
+            <input type="time" class="form-control" name="hora" required value="<?= $parametros["datos"]["hora"] ?>"></label>
+          <br/>
 
         <label for="categoria_id" class="mt-2">Categoría
             <select class="form-select" name="categoria_id" required>
@@ -49,6 +53,14 @@
         <label for="imagen">Imagen nueva:
           <input type="file" name="imagen" class="form-control" value="<?= $parametros["datos"]["imagen"] ?>" /></label>
         </br>
+
+        <label for="prioridad" class="mt-2 w-25">Prioridad
+            <input type="number" class="form-control" name="prioridad" required value="<?= $parametros["datos"]["prioridad"] ?>"></label>
+          <br/>
+
+          <label for="lugar" class="mt-2 w-25">Lugar
+            <input type="text" class="form-control" name="lugar" required value="<?= $parametros["datos"]["lugar"] ?>"></label>
+          <br/>
         <!--Creamos un campo oculto para mantener el valor del id que deseamos modificar cuando pulsemos el botón actualizar-->  
         <input type="hidden" name="id" value="<?php echo $id; ?>">
         <br/>
