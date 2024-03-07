@@ -248,4 +248,46 @@ class modelo {
     return $return;
   }
 
+  public function listadotitulo($titulo) {
+    $return = [
+        "correcto" => FALSE,
+        "datos" => NULL,
+        "error" => NULL
+    ];
+
+    try { 
+      $sql = "SELECT tareas.*, categorias.nombre AS nombreCategoria FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE tareas.titulo LIKE '%$titulo%'";
+      $resultsquery = $this->conexion->query($sql);
+      if ($resultsquery) {
+        $return["correcto"] = TRUE;
+        $return["datos"] = $resultsquery->fetchAll(PDO::FETCH_ASSOC);
+      }
+    } catch (PDOException $ex) {
+      $return["error"] = $ex->getMessage();
+    }
+
+    return $return;
+  }
+
+  public function listadofecha($fecha) {
+    $return = [
+        "correcto" => FALSE,
+        "datos" => NULL,
+        "error" => NULL
+    ];
+
+    try { 
+      $sql = "SELECT tareas.*, categorias.nombre AS nombreCategoria FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE DATE(tareas.fecha) = '$fecha'";
+      $resultsquery = $this->conexion->query($sql);
+      if ($resultsquery) {
+        $return["correcto"] = TRUE;
+        $return["datos"] = $resultsquery->fetchAll(PDO::FETCH_ASSOC);
+      }
+    } catch (PDOException $ex) {
+      $return["error"] = $ex->getMessage();
+    }
+
+    return $return;
+  }
+
 }

@@ -389,11 +389,6 @@ class controlador {
       // Realizamos la operación de suprimir el usuario con el id=$id
       $this->modelo->deltarea($id);
 
-      $logs["usuario_id"] = $_SESSION['iduser'];
-      $logs["accion"] = "Se eliminó la tarea $id";
-      $logs["fecha"] = date("Y-m-d H:i:s");
-      $this->insertarlog($logs);
-
       // Redirigimos a la página de listado de usuarios
       header("Location: index.php?accion=listadoTareas");
     }
@@ -404,21 +399,6 @@ class controlador {
     session_start();
     session_destroy();
     header("Location: ./index.php");
-  }
-
-  public function insertarlog($logs) {
-    $resultLogs = $this->modelo->insertarlog($logs);
-    if ($resultLogs["correcto"]) :
-      $this->mensajes[] = [
-          "tipo" => "success",
-          "mensaje" => "Se insertó correctamente el log"
-      ];
-    else :
-      $this->mensajes[] = [
-          "tipo" => "danger",
-          "mensaje" => "La inserción del log no se realizó correctamente!! :( <br/>({$resultLogs["error"]})"
-      ];
-    endif;
   }
 
   public function listadetalle() {
@@ -449,6 +429,72 @@ class controlador {
 
     $parametros["mensajes"] = $this->mensajes;
     include_once 'vistas/listadetalle.php';
+  }
+
+  public function listadotitulo() {
+    if (!isset($_SESSION)) {
+      session_start();
+    }
+    $parametros = [
+        "tituloventana" => "Base de Datos con PHP y PDO",
+        "datos" => NULL,
+        "mensajes" => []
+    ];
+    if (isset($_GET['titulo'])) {
+      $titulo = $_GET['titulo'];
+      $resultModelo = $this->modelo->listadotitulo($titulo);
+    } else {
+      $resultModelo = $this->modelo->listadoTareas();
+    }
+
+    if ($resultModelo["correcto"]) :
+      $parametros["datos"] = $resultModelo["datos"];
+      $this->mensajes[] = [
+          "tipo" => "success",
+          "mensaje" => "El listado se realizó correctamente"
+      ];
+    else :
+      $this->mensajes[] = [
+          "tipo" => "danger",
+          "mensaje" => "El listado no pudo realizarse correctamente{$resultModelo["error"]})"
+      ];
+    endif;
+
+    $parametros["mensajes"] = $this->mensajes;
+    include_once 'vistas/listadotitulo.php';
+  }
+
+  public function listadofecha() {
+    if (!isset($_SESSION)) {
+      session_start();
+    }
+    $parametros = [
+        "tituloventana" => "Base de Datos con PHP y PDO",
+        "datos" => NULL,
+        "mensajes" => []
+    ];
+    if (isset($_GET['fecha'])) {
+      $fecha = $_GET['fecha'];
+      $resultModelo = $this->modelo->listadofecha($fecha);
+    } else {
+      $resultModelo = $this->modelo->listadoTareas();
+    }
+
+    if ($resultModelo["correcto"]) :
+      $parametros["datos"] = $resultModelo["datos"];
+      $this->mensajes[] = [
+          "tipo" => "success",
+          "mensaje" => "El listado se realizó correctamente"
+      ];
+    else :
+      $this->mensajes[] = [
+          "tipo" => "danger",
+          "mensaje" => "El listado no pudo realizarse correctamente{$resultModelo["error"]})"
+      ];
+    endif;
+
+    $parametros["mensajes"] = $this->mensajes;
+    include_once 'vistas/listadofecha.php';
   }
 
 }

@@ -66,7 +66,7 @@
         </div>
 
         <div class="col-12">
-          <h4 class="text-center mt-1">Categoría: <?= $d["nombre"] ?></h4>
+          <h4 class="text-center mt-1">Categoría: <?= $d["nombreCategoria"] ?></h4>
         </div>
       </div>
       <div class="mt-1 mb-5">
