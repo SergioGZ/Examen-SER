@@ -58,11 +58,11 @@ class modelo {
             "datos" => null,
             "error" => null,
         ];
-        // Realizamos la consulta
-        try { // Preparamos la consulta
+        
+        try {
             $sql = "SELECT * FROM usuarios where nick = '$user'";            
             $resultsquery = $this->conexion->query($sql);
-            //Si la consulta se realizó correctamente
+            
             if ($resultsquery) {
                 $resultModelo["correcto"] = true;
                 $resultModelo["datos"] = $resultsquery->fetch(PDO::FETCH_ASSOC);
@@ -74,7 +74,7 @@ class modelo {
         return $resultModelo;
     }
 
-    // Método que lista todas las entradas de la base de datos
+    // Método que lista todas las tareas de la base de datos
     public function listadoTareas() {
       $resultmodelo = [
           "correcto" => FALSE,
@@ -96,7 +96,7 @@ class modelo {
       return $resultmodelo;
     }
 
-    // Método que añade una entrada a la base de datos
+    // Método que añade una tarea a la base de datos
     public function addtarea($datos) {
       $return = [
           "correcto" => FALSE,
@@ -123,9 +123,9 @@ class modelo {
           $return["correcto"] = TRUE;
         }// o no :(
       } catch (PDOException $ex) {
-        $this->conexion->rollback(); // rollback() se revierten los cambios realizados durante la transacción
+        $this->conexion->rollback();
         $return["error"] = $ex->getMessage();
-        //die();
+        
       }
   
       return $return;
@@ -144,14 +144,14 @@ class modelo {
           $sql = "SELECT tareas.*, categorias.nombre AS nombreCategoria FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE tareas.id=:id";
           $query = $this->conexion->prepare($sql);
           $query->execute(['id' => $id]);
-          // Supervisamos que la consulta se realizó correctamente
+
           if ($query) {
             $return["correcto"] = TRUE;
             $return["datos"] = $query->fetch(PDO::FETCH_ASSOC);
-          }// o no :(
+          }
         } catch (PDOException $ex) {
           $return["error"] = $ex->getMessage();
-          //die();
+
         }
       }
   
@@ -204,17 +204,17 @@ class modelo {
       try {
         //Inicializamos la transacción
         $this->conexion->beginTransaction();
-        //Definimos la instrucción SQL parametrizada 
+       
         $sql = "DELETE FROM tareas WHERE id=:id";
         $query = $this->conexion->prepare($sql);
         $query->execute(['id' => $id]);
   
         if ($query) {
-          $this->conexion->commit();  // commit() confirma los cambios realizados durante la transacción
+          $this->conexion->commit(); 
           $return["correcto"] = TRUE;
-        }// o no :(
+        }
       } catch (PDOException $ex) {
-        $this->conexion->rollback(); // rollback() se revierten los cambios realizados durante la transacción
+        $this->conexion->rollback();
         $return["error"] = $ex->getMessage();
       }
     } else {
@@ -231,12 +231,12 @@ class modelo {
         "datos" => NULL,
         "error" => NULL
     ];
-    //Realizamos la consulta...
-    try {  //Definimos la instrucción SQL  
+    
+    try {   
       $sql = "SELECT * FROM categorias";
-      // Hacemos directamente la consulta al no tener parámetros
+      
       $resultsquery = $this->conexion->query($sql);
-      //Supervisamos si la inserción se realizó correctamente... 
+      
       if ($resultsquery) {
         $return["correcto"] = TRUE;
         $return["datos"] = $resultsquery->fetchAll(PDO::FETCH_ASSOC);
@@ -256,7 +256,7 @@ class modelo {
     ];
 
     try { 
-      $sql = "SELECT tareas.*, categorias.nombre AS nombreCategoria FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE tareas.titulo LIKE '%$titulo%'";
+      $sql = "SELECT tareas.*, categorias.nombre AS nombreCategoria FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE tareas.titulo LIKE '%$titulo%' ORDER BY fecha ASC, hora ASC";
       $resultsquery = $this->conexion->query($sql);
       if ($resultsquery) {
         $return["correcto"] = TRUE;
@@ -277,7 +277,7 @@ class modelo {
     ];
 
     try { 
-      $sql = "SELECT tareas.*, categorias.nombre AS nombreCategoria FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE DATE(tareas.fecha) = '$fecha'";
+      $sql = "SELECT tareas.*, categorias.nombre AS nombreCategoria FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE DATE(tareas.fecha) = '$fecha' ORDER BY hora ASC";
       $resultsquery = $this->conexion->query($sql);
       if ($resultsquery) {
         $return["correcto"] = TRUE;
