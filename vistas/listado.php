@@ -22,7 +22,7 @@
 
       <div class="row bg-danger border border-5 border-dark">
         <div class="col-12" id="titulotarea">
-          <h4 class="text-center mt-1">Fecha: <?= $d["fecha"] ?> - Hora: <?= $d["hora"]?></h4>
+          <h4 class="text-center mt-1">Fecha: <?= $d["fecha"] ?> - Hora: <?= date('H:i:s', strtotime($d["hora"]))?></h4>
           <h4 class="text-center">Importancia: <?= $d["prioridad"] ?></h4>
         </div>
 

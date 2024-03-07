@@ -7,6 +7,7 @@
     <!--enlaceckeditor-->
     <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
   </head>
+
   <body>
     <div class="container">
       <?php include_once 'vistas/includes/header.html'; ?>
@@ -33,7 +34,7 @@
         <br/>
 
         <label for="hora" class="mt-2 w-25">Hora
-            <input type="time" class="form-control" name="hora" required value="<?= $parametros["datos"]["hora"] ?>"></label>
+            <input type="time" class="form-control" name="hora" required value="<?= date('H:i:s', strtotime($parametros["datos"]["hora"])) ?>"></label>
           <br/>
 
         <label for="categoria_id" class="mt-2">Categoría

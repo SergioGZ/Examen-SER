@@ -6,9 +6,8 @@
 <html>
   <head>
     <?php require_once 'includes/head.php'; ?>
-    <!--enlaceckeditor-->
-    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
   </head>
+  
   <body>	
     <div class="container">
       <?php include_once 'vistas/includes/header.html'; ?>
@@ -24,8 +23,7 @@
           <br/>
 
           <label for="descripcion" class="mt-2">Descripción
-            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required><?= $parametros["datos"]["descripcion"] ?></textarea></label>
-            <script>CKEDITOR.replace('descripcion');</script>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" cols="40" required><?= $parametros["datos"]["descripcion"] ?></textarea></label>
           <br/>
 
           <label for="categoria_id" class="mt-2">Categoría

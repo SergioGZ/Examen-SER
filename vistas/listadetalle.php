@@ -11,11 +11,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   </head>
   <body>
-    <div class="container bg-white pb-3" id="pdf" style="height:max-fit;">
+    <div class="container bg-white pb-3" id="pdf" style="min-height:100vh; height:auto;">
       <?php include_once 'vistas/includes/header.html'; ?>
       <div class="tituloentrada mt-3">
         <h2 class="text-center mx-auto border border-3 border-dark p-2" style="width:fit-content"><?= $parametros["datos"]["titulo"] ?></h2>
-        <h3 class="text-center">Lugar: <?= $parametros["datos"]["lugar"] ?> - Fecha: <?= $parametros["datos"]["fecha"] ?> - Hora: <?=$parametros["datos"]["hora"]?></h3>
+        <h3 class="text-center">Lugar: <?= $parametros["datos"]["lugar"] ?> - Fecha: <?= $parametros["datos"]["fecha"] ?> - Hora: <?= date('H:i:s', strtotime($parametros["datos"]["hora"])) ?></h3>
         <h3 class="text-center">Prioridad: <?= $parametros["datos"]["prioridad"] ?></h3>
       </div>
       <div class="imagen">

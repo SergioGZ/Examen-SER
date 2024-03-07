@@ -83,7 +83,7 @@ class modelo {
       ];
 
       try { 
-        $sql = "SELECT tareas.*, categorias.* FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id";
+        $sql = "SELECT tareas.*, categorias.* FROM tareas INNER JOIN categorias ON tareas.categoria_id = categorias.id WHERE DATE(tareas.fecha) = CURDATE() ORDER BY hora ASC";
         $resultsquery = $this->conexion->query($sql);
         if ($resultsquery) :
           $resultmodelo["correcto"] = TRUE;
@@ -167,7 +167,7 @@ class modelo {
   
       try {
         $this->conexion->beginTransaction();
-        $sql = "UPDATE tareas SET titulo= :titulo, descripcion= :descripcion, categoria_id= :categoria_id, fecha= :fecha, imagen= :imagen, hora= :hora, prioridad= :prioridad, lugar= :lugar WHERE id=:id ORDER BY hora ASC";
+        $sql = "UPDATE tareas SET titulo= :titulo, descripcion= :descripcion, categoria_id= :categoria_id, fecha= :fecha, imagen= :imagen, hora= :hora, prioridad= :prioridad, lugar= :lugar WHERE id=:id";
         $query = $this->conexion->prepare($sql);
         $query->execute([
             'id' => $datos["id"],
